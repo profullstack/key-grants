@@ -1,6 +1,6 @@
 {
   "name": "@profullstack/key-grants",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "App side of logicsrc app grants: ask logicsrc for API keys by name, receive them sealed to the user's vault, follow rotations and revokes.",
   "type": "module",
   "exports": {
