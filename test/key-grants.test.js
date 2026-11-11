@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { createSealer } from '@profullstack/sealed-secrets';
-import { createKeyGrants, memoryStore, parseKeyNames, sqlStore, verifyWebhook, KeyGrantError } from '../src/index.js';
+import { createKeyGrants, memoryStore, openGrantedValue, parseKeyNames, sqlStore, verifyWebhook, KeyGrantError } from '../src/index.js';
 
 const sealer = createSealer({ app: 'demo', scope: 'workflow_secrets' });
 const sign = (secret, body, ts = Math.floor(Date.now() / 1000), id = 'msg_1') => ({
@@ -116,4 +116,13 @@ test('sqlStore: $n placeholders, prefix, upsert', async () => {
   assert.match(ins.sql, /values \(\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8\)/);
   assert.match(calls.at(-1).sql, /on conflict \(grant_id\) do update/);
   assert.throws(() => sqlStore(client, { prefix: 'bad;drop' }), /plain identifier/);
+});
+
+test('openGrantedValue returns only the granted field', async () => {
+  const made = await sealer.createSeal('correct horse battery staple', 'u1');
+  const entry = await sealer.sealToInbox(made.seal.inbox_public_key, { API_KEY: 'k', EVM_PRIVATE_KEY: 'smuggled' }, 'u1');
+  const sealed = `sealed:v2:${JSON.stringify(entry)}`;
+  assert.equal(await openGrantedValue(sealer, made.dek, made.seal, 'u1', sealed, 'API_KEY'), 'k');
+  assert.equal(await openGrantedValue(sealer, made.dek, made.seal, 'u1', sealed, 'OTHER'), null);
+  await assert.rejects(openGrantedValue(sealer, made.dek, made.seal, 'u1', 'plain', 'API_KEY'), { code: 'bad_sealed' });
 });

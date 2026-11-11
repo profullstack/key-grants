@@ -215,4 +215,25 @@ export function createKeyGrants(o) {
   return { start, manifest, webhook, startResponse, manifestResponse, webhookResponse, origin, logicsrcUrl, webhookPath };
 }
 
+/**
+ * Open a delivered value and return ONLY the field for the key it was granted
+ * for. The server cannot see inside a sealed delivery, so never apply every
+ * field of the opened patch: a crafted entry could carry extra fields (say a
+ * wallet key) that would otherwise be written on the next unlock.
+ *
+ * @param {{ openInbox: Function }} sealer  createSealer({ app, scope }) from @profullstack/sealed-secrets
+ * @param {Uint8Array} dek                  the person's vault data key (after their unlock)
+ * @param {object} seal                     their seal record
+ * @param {string} userId                   the user id bound into the seal
+ * @param {string} sealed                   the `sealed:v2:` text onKey received
+ * @param {string} keyName                  the key this grant is for
+ * @returns {Promise<string|null>}          the value, or null when the entry has no such field
+ */
+export async function openGrantedValue(sealer, dek, seal, userId, sealed, keyName) {
+  if (typeof sealed !== 'string' || !sealed.startsWith(SEALED_PREFIX)) throw new KeyGrantError('not a sealed value', 'bad_sealed');
+  const entry = JSON.parse(sealed.slice(SEALED_PREFIX.length));
+  const { patch } = await sealer.openInbox(dek, seal, [entry], userId);
+  return patch && Object.prototype.hasOwnProperty.call(patch, keyName) ? String(patch[keyName]) : null;
+}
+
 export { sqlStore, memoryStore } from './stores.js';

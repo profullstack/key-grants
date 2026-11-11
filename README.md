@@ -68,6 +68,8 @@ The tables hold nonces, per-request webhook secrets and grant ids. Never a key.
 
 ## Security notes
 
+- **Apply only the granted key.** Your server cannot see inside a delivery. When you open it (after the person unlocks), take only the field for the key that grant was for; never merge every field of the opened patch. `openGrantedValue(sealer, dek, seal, userId, sealed, keyName)` does exactly that.
+
 - logicsrc shows the person the origin it fetched your manifest from, not a name you claimed, and refuses webhooks off your origin.
 - Each request has its own webhook secret; deliveries are Standard Webhooks signed and checked within 5 minutes.
 - A grant arrives for a key your request named, or it is refused.

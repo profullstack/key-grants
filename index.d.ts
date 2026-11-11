@@ -102,3 +102,11 @@ export declare function sqlStore(
   client: { query(sql: string, params: unknown[]): Promise<object[]> },
   opts?: { placeholder?: '?' | '$'; prefix?: string },
 ): KeyGrantStore & { ensure(): Promise<void> };
+export declare function openGrantedValue(
+  sealer: { openInbox(dek: Uint8Array, seal: object, entries: object[], userId: string): Promise<{ patch: Record<string, unknown> }> },
+  dek: Uint8Array,
+  seal: object,
+  userId: string,
+  sealed: string,
+  keyName: string,
+): Promise<string | null>;
