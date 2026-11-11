@@ -1,0 +1,26 @@
+{
+  "name": "@profullstack/key-grants",
+  "version": "0.1.0",
+  "description": "App side of logicsrc app grants: ask logicsrc for API keys by name, receive them sealed to the user's vault, follow rotations and revokes.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["src", "index.d.ts", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "node --test && bun test"
+  },
+  "devDependencies": {
+    "@profullstack/sealed-secrets": "^0.2.0"
+  },
+  "engines": { "node": ">=20" },
+  "keywords": ["logicsrc", "secrets", "api-keys", "sealed-secrets", "webhooks", "profullstack"],
+  "repository": { "type": "git", "url": "git+https://github.com/profullstack/key-grants.git" },
+  "license": "MIT",
+  "publishConfig": { "access": "public" }
+}
